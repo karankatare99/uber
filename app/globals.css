@@ -1,26 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Primary Font: Montserrat (Geometric, Clean) */
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  
+  /* Secondary Font: Roboto Condensed (Technical, Dense) */
+  --font-condensed: "Roboto Condensed", ui-sans-serif, system-ui, sans-serif;
+
+  /* Colors */
+  --color-brand-yellow: #FACC15;
+  --color-brand-black: #000000;
+  --color-brand-gray: #171717;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: black;
+  }
+
+  body {
+    /* Apply Montserrat by default */
+    @apply bg-brand-black text-white font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
+
+/* UI Polish */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #171717; }
+::-webkit-scrollbar-thumb { background: #404040; border-radius: 9999px; border: 2px solid #171717; }
+::-webkit-scrollbar-thumb:hover { background: #FACC15; }
+
+::selection { background-color: #FACC15; color: #000000; }

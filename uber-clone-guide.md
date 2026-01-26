@@ -609,12 +609,9 @@ src/
 │   │   ├── LoadingSpinner.tsx       # Loading indicator
 │   │   ├── Toast.tsx               # Notifications
 │   │   ├── Button.tsx              # Reusable button
-│   │   └── Modal.tsx               # Modal overlay
 │   ├── auth/
 │   │   ├── LoginForm.tsx           # Email/password login
 │   │   ├── RegisterForm.tsx        # Registration form
-│   │   ├── OTPVerification.tsx      # Phone OTP verification
-│   │   └── ProtectedRoute.tsx       # Route guard wrapper
 │   ├── maps/
 │   │   ├── MapContainer.tsx        # Google Maps integration
 │   │   ├── DriverMarker.tsx        # Animated driver pin
