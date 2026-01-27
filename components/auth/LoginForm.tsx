@@ -100,9 +100,9 @@ const LoginForm = () => {
 
         <motion.div variants={itemVariants} className="mt-10 text-center text-sm text-neutral-500 font-sans font-medium">
           Don't have an account?{" "}
-          <Link href="/auth/register" className="text-black font-black hover:underline decoration-yellow-400 decoration-2 underline-offset-4">
+          <span className="text-black font-black hover:underline decoration-yellow-400 decoration-2 underline-offset-4">
             Sign up for free
-          </Link>
+          </span>
         </motion.div>
       </div>
     </motion.div>

@@ -1,19 +1,43 @@
 "use client";
 
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Button from "../shared/Button";
 import { ArrowRight } from "lucide-react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const RegisterForm = () => {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const [role, setRole] = useState<"rider" | "driver">("rider");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { register, getValues } = useForm();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => setLoading(false), 2000);
+
+    const formData = {
+      firstName: getValues("firstName"),
+      lastName: getValues("lastName"),
+      email: getValues("email"),
+      password: getValues("password"),
+      userType: role
+    }
+
+    try {
+    const res = await axios.post("/api/auth/register", formData); 
+    const { newUserData } = res.data;
+    console.log("Registration successful");
+    router.push('/rider/dashboard')
+    } catch (error) {
+      console.error("Registration failed", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,7 +51,6 @@ const RegisterForm = () => {
         <p className="text-neutral-500 font-medium font-sans">Join us and start moving today.</p>
       </div>
 
-      {/* Role Toggle Switch */}
       <div className="flex bg-neutral-100 p-1 rounded-xl mb-6">
         {(["rider", "driver"] as const).map((r) => (
           <button
@@ -47,22 +70,22 @@ const RegisterForm = () => {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
              <label className="text-xs font-bold font-condensed uppercase text-black ml-1">First Name</label>
-             <input type="text" className="w-full bg-neutral-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-black transition-all font-sans font-medium text-black" />
+             <input {...register("firstName")} type="text" className="w-full bg-neutral-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-black transition-all font-sans font-medium text-black" />
           </div>
           <div className="space-y-1">
              <label className="text-xs font-bold font-condensed uppercase text-black ml-1">Last Name</label>
-             <input type="text" className="w-full bg-neutral-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-black transition-all font-sans font-medium text-black" />
+             <input {...register("lastName")} type="text" className="w-full bg-neutral-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-black transition-all font-sans font-medium text-black" />
           </div>
         </div>
 
         <div className="space-y-1">
           <label className="text-xs font-bold font-condensed uppercase text-black ml-1">Email Address</label>
-          <input type="email" className="w-full bg-neutral-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-black transition-all font-sans font-medium text-black" />
+          <input {...register("email")} type="email" className="w-full bg-neutral-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-black transition-all font-sans font-medium text-black" />
         </div>
 
         <div className="space-y-1">
           <label className="text-xs font-bold font-condensed uppercase text-black ml-1">Password</label>
-          <input type="password" className="w-full bg-neutral-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-black transition-all font-sans font-medium text-black" />
+          <input {...register("password")} type="password" className="w-full bg-neutral-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-black transition-all font-sans font-medium text-black" />
         </div>
 
         <div className="pt-2">
@@ -83,9 +106,9 @@ const RegisterForm = () => {
 
       <div className="mt-4 text-center text-sm text-neutral-500 font-medium font-sans">
         Already have an account?{" "}
-        <Link href="/auth/login" className="text-black font-bold hover:underline">
+        <span className="text-black font-bold hover:underline">
           Log in
-        </Link>
+        </span>
       </div>
     </motion.div>
   );

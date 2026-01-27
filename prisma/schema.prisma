@@ -19,7 +19,6 @@ model User {
   lastName String
   email String @unique
   password String @unique
-  phone String @unique
   userType String
   sessionToken String
 }
