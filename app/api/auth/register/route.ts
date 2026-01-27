@@ -48,8 +48,27 @@ export async function POST(request: Request) {
     .sign(key);
 
     const newUser = await prisma.user.create({ data: { firstName, lastName, email, password: hashedPassword, userType, sessionToken } });
-    const newUserData = { id: newUser.id, email, userType, sessionToken };
-    return NextResponse.json({ newUserData }, { status: 201 })
+
+    const response = NextResponse.json(
+      { 
+        newUserData: { 
+          id: newUser.id, 
+          email: newUser.email, 
+          userType: newUser.userType 
+        }
+      }, 
+      { status: 201 }
+    );
+
+    response.cookies.set("sessionToken", sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7,  // 7 days
+      path: "/"
+    });
+
+    return response
   } catch (e) {
       console.error('register API error:', e);
       return NextResponse.json({ message: "Failed to create user" });
