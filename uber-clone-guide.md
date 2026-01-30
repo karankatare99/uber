@@ -606,7 +606,7 @@ src/
 │   ├── shared/
 │   │   ├── Header.tsx              # Navigation + user menu
 │   │   ├── Footer.tsx              # Footer with links
-│   │   ├── LoadingSpinner.tsx       # Loading indicator
+│   │   ├── LoadingSpinner.tsx      # Loading indicator
 │   │   ├── Toast.tsx               # Notifications
 │   │   ├── Button.tsx              # Reusable button
 │   ├── auth/

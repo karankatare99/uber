@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (e) {
-      console.error('register API error:', e);
-      return NextResponse.json({ message: "Failed to create user" });
+      console.error('session API error:', e);
+      return NextResponse.json({ message: "Failed to fetch user" });
   }
 }

@@ -32,7 +32,7 @@ const RegisterForm = () => {
     const res = await axios.post("/api/auth/register", formData); 
     const { newUserData } = res.data;
     console.log("Registration successful");
-    router.push('/rider/dashboard')
+    router.push('/dashboard')
     } catch (error) {
       console.error("Registration failed", error);
     } finally {

@@ -5,14 +5,35 @@ import Link from "next/link";
 import { motion, Variants } from "framer-motion"; // 1. Import Variants
 import Button from "../shared/Button";
 import { ArrowRight, Mail, Lock } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 const LoginForm = () => {
   const [loading, setLoading] = useState(false);
+  const { register, getValues } = useForm();
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => setLoading(false), 2000);
+
+    const formData = {
+      email: getValues("email"),
+      password: getValues("password")
+    }
+
+    
+    try {
+    const res = await axios.post("/api/auth/login", formData); 
+    const { userData } = res.data;
+    console.log("Login successful");
+    router.push('/dashboard')
+    } catch (error) {
+      console.error("Registration failed", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 2. Explicitly type the variants
@@ -57,7 +78,8 @@ const LoginForm = () => {
             <label className="text-xs font-bold font-condensed uppercase tracking-wider text-black ml-1">Email</label>
             <div className="relative group">
               <Mail className="absolute left-4 top-4 h-5 w-5 text-neutral-400 group-focus-within:text-yellow-600 transition-colors duration-300" />
-              <input 
+              <input
+                {...register("email")}
                 type="email" 
                 required
                 placeholder="name@example.com"
@@ -77,6 +99,7 @@ const LoginForm = () => {
             <div className="relative group">
               <Lock className="absolute left-4 top-4 h-5 w-5 text-neutral-400 group-focus-within:text-yellow-600 transition-colors duration-300" />
               <input 
+                {...register("password")}
                 type="password" 
                 required
                 placeholder="••••••••"
