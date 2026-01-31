@@ -25,10 +25,10 @@ const LoginForm = () => {
 
     
     try {
-    const res = await axios.post("/api/auth/login", formData); 
-    const { userData } = res.data;
+    await axios.post("/api/auth/login", formData); 
     console.log("Login successful");
-    router.push('/dashboard')
+    router.refresh();
+    router.push('/dashboard');
     } catch (error) {
       console.error("Registration failed", error);
     } finally {

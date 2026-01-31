@@ -1,25 +1,32 @@
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { cookies } from "next/headers";
+import { jwtVerify } from "jose";
+
+export interface UserProp {
+  firstName: string;
+  lastName: string;
+  email: string;
+  userType: string;
+}
 
 export async function getUser() {
-  const cookieStore = await cookies();
-  const sessionToken = cookieStore.get('sessionToken')?.value;
+  try {
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get("sessionToken")?.value;
 
-  if (!sessionToken) {
-    redirect('/login');
+    if (!sessionToken) {
+      return null;
+    }
+
+    const secretKey = new TextEncoder().encode(process.env.JWT_SECRET!);
+    const { payload } = await jwtVerify(sessionToken, secretKey);
+
+    return {
+      firstName: payload.firstName as string,
+      lastName: payload.lastName as string,
+      email: payload.email as string,
+      userType: payload.userType as string
+    } as UserProp;
+  } catch (error) {
+    return null;
   }
-
-  const res = await fetch('http://localhost:3000/api/auth/session', {
-    headers: {
-      Cookie: cookieStore.toString(),
-    },
-    cache: 'no-store'
-  });
-
-  if (!res.ok) {
-    redirect('/login');
-  }
-
-  const { user } = await res.json();
-  return user;
 }

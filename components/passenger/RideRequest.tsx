@@ -1,8 +1,6 @@
 "use client";
 
-import React from "react";
 import { motion } from "framer-motion";
-import { MapPin, Navigation, Search } from "lucide-react";
 import Button from "../shared/Button";
 
 const RideRequest = () => {
@@ -46,8 +44,8 @@ const RideRequest = () => {
       {/* Saved Places (Quick Access) */}
       <div className="flex gap-3 mb-6 overflow-x-auto no-scrollbar pb-2">
         {["Home", "Work", "Gym"].map((place) => (
-          <button key={place} className="flex items-center gap-2 px-4 py-2 bg-neutral-100 rounded-full hover:bg-neutral-200 transition-colors whitespace-nowrap">
-            <div className="w-2 h-2 bg-neutral-400 rounded-full" />
+          <button key={place} className="flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-400 hover:bg-neutral-300 transition-colors whitespace-nowrap">
+            <div className="w-2 h-2 bg-neutral-100 rounded-full" />
             <span className="text-xs font-bold font-condensed uppercase tracking-wide">{place}</span>
           </button>
         ))}

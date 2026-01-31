@@ -39,7 +39,8 @@ export async function GET(request: NextRequest) {
       user: {
         id: user.id,
         email: user.email,
-        name: `${user.firstName} ${user.lastName}`,
+        firstName: user.firstName,
+        lastName: user.lastName,
         userType: user.userType
       }
     });
