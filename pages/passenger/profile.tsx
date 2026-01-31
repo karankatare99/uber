@@ -1,15 +1,49 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, Mail, Save, LogOut, Shield, Bell, ChevronRight } from "lucide-react";
 import Button from "@/components/shared/Button";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import { UserProp } from "@/lib/getUser";
 
+interface ProfileFieldProps {
+  label: string;
+  value: string;
+  onChange?: (value: string) => void;  // Optional onChange
+  disabled?: boolean;
+  isEditing?: boolean;  // Add isEditing prop
+}
+
+const ProfileField: React.FC<ProfileFieldProps> = ({ 
+  label, 
+  value, 
+  onChange, 
+  disabled = false, 
+  isEditing = false 
+}) => (
+  <div className="group">
+    <label className="block text-[10px] font-bold font-condensed uppercase tracking-widest text-neutral-400 mb-1 group-focus-within:text-black transition-colors">
+      {label}
+    </label>
+    {disabled || !isEditing ? (
+      <p className={`text-sm font-semibold py-2 border-b border-transparent truncate ${disabled ? "text-neutral-400" : "text-black"}`}>
+        {value}
+      </p>
+    ) : (
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
+        className="w-full py-2 bg-transparent border-b border-neutral-200 text-sm font-semibold text-black focus:border-black focus:outline-none transition-all placeholder:text-neutral-300"
+      />
+    )}
+  </div>
+);
+
 interface ProfileProps {
   onLogout: () => void;
-  user: UserProp
+  user: UserProp;
 }
 
 const Profile: React.FC<ProfileProps> = ({ onLogout, user }) => {
@@ -20,55 +54,37 @@ const Profile: React.FC<ProfileProps> = ({ onLogout, user }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ firstName: "", lastName: "" });
 
-  // Initial Fetch
   useEffect(() => {
     setUserData(user);
-    setFormData({ firstName: user.firstName, lastName: user.lastName });
+    setFormData({ firstName: user.firstName || "", lastName: user.lastName || "" });
     setLoading(false);
   }, []);
 
-  // Save Handler
+  const updateFirstName = useCallback((value: string) => {
+    setFormData(prev => ({ ...prev, firstName: value }));
+  }, []);
+
+  const updateLastName = useCallback((value: string) => {
+    setFormData(prev => ({ ...prev, lastName: value }));
+  }, []);
+
   const handleSave = async () => {
     setSaving(true);
-    // Simulate API Call
     await new Promise((resolve) => setTimeout(resolve, 1000));
     
-    // Update local "source of truth"
     setUserData({ ...userData, ...formData });
     setSaving(false);
     setIsEditing(false);
   };
 
-  // Cancel Handler (Revert changes)
   const handleCancel = () => {
-    setFormData({ firstName: userData.firstName, lastName: userData.lastName });
+    setFormData({ firstName: userData.firstName || "", lastName: userData.lastName || "" });
     setIsEditing(false);
   };
 
   if (loading) return <div className="h-full flex items-center justify-center"><LoadingSpinner size={30} /></div>;
 
   const getInitials = () => formData.firstName ? formData.firstName[0].toUpperCase() : "U";
-
-  // Reusable Minimal Input Field Component
-  const ProfileField = ({ label, value, field, type = "text", disabled = false }: any) => (
-    <div className="group">
-      <label className="block text-[10px] font-bold font-condensed uppercase tracking-widest text-neutral-400 mb-1 group-focus-within:text-black transition-colors">
-        {label}
-      </label>
-      {isEditing && !disabled ? (
-        <input
-          type={type}
-          value={value}
-          onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
-          className="w-full py-2 bg-transparent border-b border-neutral-200 text-sm font-semibold text-black focus:border-black focus:outline-none transition-all placeholder:text-neutral-300"
-        />
-      ) : (
-        <p className={`text-sm font-semibold py-2 border-b border-transparent truncate ${disabled ? "text-neutral-400" : "text-black"}`}>
-          {value}
-        </p>
-      )}
-    </div>
-  );
 
   return (
     <div className="bg-white h-full flex flex-col font-sans rounded-3xl shadow-2xl overflow-hidden">
@@ -119,14 +135,14 @@ const Profile: React.FC<ProfileProps> = ({ onLogout, user }) => {
                     onClick={() => setIsEditing(true)}
                     className="text-xs font-bold font-condensed uppercase tracking-wider text-neutral-400 hover:text-black transition-colors"
                 >
-                    Edit
+                Edit
                 </button>
             ) : (
                 <button 
                     onClick={handleCancel}
                     className="text-xs font-bold font-condensed uppercase tracking-wider text-red-500 hover:text-red-700 transition-colors"
                 >
-                    Cancel
+                Cancel
                 </button>
             )}
         </div>
@@ -141,10 +157,25 @@ const Profile: React.FC<ProfileProps> = ({ onLogout, user }) => {
                 Personal Details
             </h3>
             <div className="grid grid-cols-2 gap-x-6 gap-y-6">
-                <ProfileField label="First Name" field="firstName" value={formData.firstName} />
-                <ProfileField label="Last Name" field="lastName" value={formData.lastName} />
+                <ProfileField 
+                  label="First Name" 
+                  value={formData.firstName}
+                  onChange={updateFirstName}
+                  isEditing={isEditing}
+                />
+                <ProfileField 
+                  label="Last Name" 
+                  value={formData.lastName}
+                  onChange={updateLastName}
+                  isEditing={isEditing}
+                />
                 <div className="col-span-2">
-                     <ProfileField label="Email Address" value={userData.email} disabled={true} />
+                     <ProfileField 
+                       label="Email Address" 
+                       value={userData.email || ""} 
+                       disabled={true}
+                       isEditing={isEditing}
+                     />
                 </div>
             </div>
         </section>
