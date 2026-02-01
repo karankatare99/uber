@@ -38,7 +38,7 @@ const Toast: React.FC<ToastProps> = ({ message, type, isVisible, onClose }) => {
           animate={{ opacity: 1, y: 20, x: "-50%" }}
           exit={{ opacity: 0, y: -20, x: "-50%" }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          className={`fixed top-4 left-1/2 z-[100] flex items-center p-4 rounded-lg shadow-xl min-w-[320px] border-l-4 font-condensed ${style.bg} ${style.border}`}
+          className={`fixed top-4 left-1/2 z-100 flex items-center p-4 rounded-lg shadow-xl min-w-[320px] border-l-4 font-condensed ${style.bg} ${style.border}`}
         >
           <Icon className={`w-5 h-5 mr-3 ${style.iconColor}`} />
           <p className={`flex-1 text-sm font-semibold tracking-wide ${type === 'success' ? 'text-white' : 'text-black'}`}>

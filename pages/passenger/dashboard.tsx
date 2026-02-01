@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Navigation, User } from "lucide-react";
 
@@ -8,7 +8,7 @@ import { ArrowLeft, Navigation, User } from "lucide-react";
 import Header from "@/components/shared/Header";
 import Button from "@/components/shared/Button";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
-import Toast, { ToastType } from "@/components/shared/Toast";
+import Toast from "@/components/shared/Toast";
 
 // Passenger Components
 import RideRequest from "@/components/passenger/RideRequest";
@@ -16,62 +16,25 @@ import FareEstimate from "@/components/passenger/FareEstimate";
 import RideStatus from "@/components/passenger/RideStatus";
 import DriverInfo from "@/components/passenger/DriverInfo";
 import Profile from "./profile";
-import axios from "axios";
 import { UserProp } from "@/lib/getUser";
-import { useRouter } from "next/navigation";
 
-// Separated Profile Component
+// Custom Hook
+import { useDashboard } from "@/hooks/useDashboard";
+import { DarkMapBackground } from "@/components/passenger/DarkMapBackground";
 
-// --- Sub-Component: Map Background ---
-const DarkMapBackground = () => (
-  <div className="absolute inset-0 bg-[#121212] overflow-hidden z-0 pointer-events-none select-none">
-    <div 
-      className="absolute inset-0 opacity-20"
-      style={{
-        backgroundImage: `linear-gradient(#262626 2px, transparent 2px), linear-gradient(90deg, #262626 2px, transparent 2px)`,
-        backgroundSize: '100px 100px'
-      }}
-    />
-    <div 
-      className="absolute inset-0 opacity-10"
-      style={{
-        backgroundImage: `linear-gradient(#404040 1px, transparent 1px), linear-gradient(90deg, #404040 1px, transparent 1px)`,
-        backgroundSize: '20px 20px'
-      }}
-    />
-    <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-[#1a1a1a] rounded-full blur-3xl opacity-50" />
-    <div className="absolute bottom-1/3 left-1/3 w-125 h-125 bg-[#0a0a0a] rounded-full blur-3xl opacity-80" />
-  </div>
-);
-
-// --- Main Dashboard Component ---
-type DashboardState = "REQUEST" | "ESTIMATE" | "SEARCHING" | "ACTIVE" | "PROFILE";
+// Sub-Components
 
 export default function Dashboard({ user }: { user: UserProp }) {
-  const [viewState, setViewState] = useState<DashboardState>("REQUEST");
-  const [toastState, setToastState] = useState<{ visible: boolean; message: string; type: ToastType }>({
-    visible: false, message: "", type: "info"
-  });
-  const router = useRouter();
-
-  const showToast = (message: string, type: ToastType) => setToastState({ visible: true, message, type });
-
-  // Navigation Logic
-  const handleRequestRide = () => setViewState("ESTIMATE");
-  const handleConfirmFare = () => {
-    setViewState("SEARCHING");
-    setTimeout(() => setViewState("ACTIVE"), 2500);
-  };
-  const handleBack = () => setViewState("REQUEST");
-  const toggleProfile = () => setViewState(viewState === "PROFILE" ? "REQUEST" : "PROFILE");
-  
-  const handleLogout = async () => {
-    await axios.post("/api/auth/logout");
-    showToast("Logged out successfully", "info");
-    setViewState("REQUEST");
-    router.refresh();
-    router.push("/");
-  };
+  const {
+    viewState,
+    toastState,
+    handleRequestRide,
+    handleConfirmFare,
+    handleBack,
+    toggleProfile,
+    handleLogout,
+    closeToast
+  } = useDashboard();
 
   return (
     <div className="min-h-screen bg-neutral-900 font-sans relative flex flex-col overflow-hidden">
@@ -83,13 +46,17 @@ export default function Dashboard({ user }: { user: UserProp }) {
       {/* Map Layer */}
       <DarkMapBackground />
 
-      {/* Floating User Avatar Button (To toggle Profile) */}
+      {/* Floating User Avatar Button */}
       <div className="absolute top-24 right-4 z-40">
         <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={toggleProfile}
-            className={`w-12 h-12 rounded-full shadow-xl flex items-center justify-center border-2 transition-all duration-300 ${viewState === 'PROFILE' ? 'bg-yellow-400 border-white text-black' : 'bg-white border-transparent text-black'}`}
+            className={`w-12 h-12 rounded-full shadow-xl flex items-center justify-center border-2 transition-all duration-300 ${
+              viewState === 'PROFILE' 
+                ? 'bg-yellow-400 border-white text-black' 
+                : 'bg-white border-transparent text-black'
+            }`}
         >
             <User size={20} />
         </motion.button>
@@ -101,7 +68,7 @@ export default function Dashboard({ user }: { user: UserProp }) {
         {/* Left Interactive Panel */}
         <div className="w-full md:w-112.5 flex flex-col justify-start pointer-events-auto h-[85vh] space-y-3">
           
-          {/* Back Button (Contextual) */}
+          {/* Back Button */}
           <AnimatePresence>
             {viewState !== "REQUEST" && viewState !== "ACTIVE" && viewState !== "PROFILE" && (
               <motion.button
@@ -119,7 +86,6 @@ export default function Dashboard({ user }: { user: UserProp }) {
           {/* Panel Content Swapper */}
           <AnimatePresence mode="wait">
             
-            {/* 1. Request */}
             {viewState === "REQUEST" && (
               <motion.div
                 key="request"
@@ -132,7 +98,6 @@ export default function Dashboard({ user }: { user: UserProp }) {
               </motion.div>
             )}
 
-            {/* 2. Estimate */}
             {viewState === "ESTIMATE" && (
               <motion.div
                 key="estimate"
@@ -145,7 +110,6 @@ export default function Dashboard({ user }: { user: UserProp }) {
               </motion.div>
             )}
 
-            {/* 3. Searching */}
             {viewState === "SEARCHING" && (
                <motion.div
                 key="searching"
@@ -160,7 +124,6 @@ export default function Dashboard({ user }: { user: UserProp }) {
                </motion.div>
             )}
 
-            {/* 4. Active Ride */}
             {viewState === "ACTIVE" && (
               <motion.div
                 key="active"
@@ -170,11 +133,12 @@ export default function Dashboard({ user }: { user: UserProp }) {
               >
                 <RideStatus />
                 <DriverInfo />
-                <Button variant="danger" fullWidth onClick={handleBack} className="mt-4">Cancel Ride</Button>
+                <Button variant="danger" fullWidth onClick={handleBack} className="mt-4">
+                  Cancel Ride
+                </Button>
               </motion.div>
             )}
 
-            {/* 5. Profile Panel (Imported) */}
             {viewState === "PROFILE" && (
               <motion.div
                 key="profile"
@@ -207,7 +171,7 @@ export default function Dashboard({ user }: { user: UserProp }) {
                 </div>
              </motion.div>
 
-             {/* Map Marker - Driver (Only Active) */}
+             {/* Map Marker - Driver */}
              <AnimatePresence>
                 {viewState === "ACTIVE" && (
                     <motion.div 
@@ -231,7 +195,7 @@ export default function Dashboard({ user }: { user: UserProp }) {
         message={toastState.message}
         type={toastState.type}
         isVisible={toastState.visible}
-        onClose={() => setToastState(prev => ({...prev, visible: false}))}
+        onClose={closeToast}
       />
     </div>
   );

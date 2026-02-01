@@ -1,36 +1,72 @@
 import prisma from "@/lib/prisma";
+import { jwtVerify, SignJWT } from "jose";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import z from "zod";
-
-const Schema = z.object({
-  firstName: z.string(),
-  lastName: z.string(),
-  email: z.string()
-})
 
 export async function POST(request: Request) {
   try {
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get("sessionToken")?.value;
+    
+    if (!sessionToken) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const secretKey = new TextEncoder().encode(process.env.JWT_SECRET!);
+    const { payload } = await jwtVerify(sessionToken, secretKey);
+    
+    const user = {
+      firstName: payload.firstName as string,
+      lastName: payload.lastName as string,
+      email: payload.email as string,
+      userType: payload.userType as string
+    };
+
     const body = await request.json();
-    const parseResult = Schema.safeParse(body);
-    if (!parseResult.success) return NextResponse.json({ message: "Invalid Body", issues: parseResult.error.issues }, { status: 400 });
+    const { firstName, lastName } = body;
 
-    const { firstName, lastName, email } = parseResult.data;
+    const updateData: any = {};
+    if (firstName !== undefined) updateData.firstName = firstName;
+    if (lastName !== undefined) updateData.lastName = lastName;
 
-    const existing = await prisma.user.update({ where: { email }, data: { firstName, lastName } });
-    if (existing) {
+    if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
-        { message: "Email already registered" },
-        { status: 409 }
+        { message: "No fields to update" }, 
+        { status: 400 }
       );
     }
 
-    return NextResponse.json({ message: "Updated user details" })
-  } catch (e) {
-      console.error('register API error:', e);
-      return NextResponse.json({ message: "Failed to create user" });
-  }
-}
+  const updatedUserFromDB = await prisma.user.update({
+      where: { email: user.email },
+      data: updateData,
+    });
 
-export async function PATCH(request: Request) {
-  return new Response(null, { status: 204 });
+    const newPayload = {
+      firstName: updatedUserFromDB.firstName!,
+      lastName: updatedUserFromDB.lastName!,
+      email: user.email,
+      userType: user.userType
+    };
+
+    const newToken = await new SignJWT(newPayload)
+      .setProtectedHeader({ alg: "HS256" })
+      .setExpirationTime("7d")
+      .sign(secretKey);
+
+    const response = NextResponse.json({ 
+      updatedUser: newPayload 
+    });
+
+    response.cookies.set("sessionToken", newToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7 // 7 days
+    });
+
+    return response;
+  } catch (e) {
+      console.error('profile API error:', e);
+      return NextResponse.json({ message: "Failed to update user" });
+  }
 }
