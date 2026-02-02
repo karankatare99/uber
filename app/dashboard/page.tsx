@@ -1,18 +1,26 @@
-import { Metadata } from "next";
+import { UserProp } from "@/lib/getUser";
 import Dashboard from "@/pages/passenger/dashboard";
-import { getUser } from "@/lib/getUser";
-import { redirect } from "next/navigation";
+import React from "react";
 
-export const metadata: Metadata = {
-  title: "Dashboard | Uber Clone",
-  description: "Request a ride, track your driver, and manage your profile.",
-};
+
+// Mock Server-Side Data Fetching
+async function getUser(): Promise<UserProp> {
+  // Simulate DB latency
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  return {
+    email: "rider@uberclone.com",
+    userType: "rider",
+    firstName: "Alex",
+    lastName: "Morgan",
+  };
+}
 
 export default async function DashboardPage() {
   const user = await getUser();
-  if (!user) {
-    redirect("/");
-  }
 
-  return <Dashboard user={user} />;
+  return (
+    <main className="min-h-screen bg-neutral-900">
+      <Dashboard user={user} />
+    </main>
+  );
 }
