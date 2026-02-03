@@ -1,10 +1,26 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
-import { Phone, MessageSquare, Star, ShieldCheck } from "lucide-react";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Phone, Star, ShieldCheck, Check, Copy } from "lucide-react";
 
 const DriverInfo = () => {
+  const [showCopiedToast, setShowCopiedToast] = useState(false);
+  const driverPhone = "+1 (555) 123-4567";
+
+  const handleCallDriver = () => {
+    // 1. Copy to clipboard
+    navigator.clipboard.writeText(driverPhone);
+    
+    // 2. Show Toast
+    setShowCopiedToast(true);
+
+    // 3. Hide Toast after 2 seconds
+    setTimeout(() => {
+      setShowCopiedToast(false);
+    }, 2000);
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -53,16 +69,33 @@ const DriverInfo = () => {
          </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="grid grid-cols-2 gap-3">
-         <button className="flex items-center justify-center gap-2 bg-white text-black py-3.5 rounded-xl font-bold hover:bg-neutral-200 transition-colors active:scale-95 text-sm">
+      {/* Action Button Container */}
+      <div className="mt-4 relative z-10">
+         <button 
+            onClick={handleCallDriver}
+            className="w-full flex items-center justify-center gap-2 bg-white text-black py-4 rounded-xl font-bold hover:bg-neutral-200 transition-colors active:scale-95 text-sm shadow-lg shadow-white/5 relative overflow-hidden"
+         >
             <Phone size={18} />
             <span>Call Driver</span>
          </button>
-         <button className="flex items-center justify-center gap-2 bg-neutral-800 text-white py-3.5 rounded-xl font-bold hover:bg-neutral-700 transition-colors active:scale-95 border border-neutral-700 text-sm">
-            <MessageSquare size={18} />
-            <span>Message</span>
-         </button>
+
+         {/* --- COPIED TOAST (Pops right of button content) --- */}
+         <AnimatePresence>
+            {showCopiedToast && (
+              <motion.div
+                initial={{ x: 20, opacity: 0, y: "-50%" }}
+                animate={{ x: 0, opacity: 1, y: "-50%" }}
+                exit={{ x: 20, opacity: 0, y: "-50%" }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className="absolute right-2 top-1/2 z-20 bg-neutral-900 text-white pl-2 pr-3 py-1.5 rounded-lg flex items-center gap-2 shadow-xl pointer-events-none border border-neutral-700"
+              >
+                <div className="bg-green-500 rounded-full p-0.5">
+                   <Check size={10} className="text-white" strokeWidth={3} />
+                </div>
+                <span className="text-[10px] font-bold font-condensed uppercase tracking-wider">Copied</span>
+              </motion.div>
+            )}
+         </AnimatePresence>
       </div>
     </motion.div>
   );

@@ -24,7 +24,7 @@ const RideStatus = () => {
       {/* Progress Timeline */}
       <div className="relative pl-2 space-y-8">
         {/* Dotted Connecting Line */}
-        <div className="absolute left-[13px] top-3 bottom-6 w-0.5 border-l-2 border-dashed border-neutral-200" />
+        <div className="absolute left-3.25 top-3 bottom-6 w-0.5 border-l-2 border-dashed border-neutral-200" />
         
         {/* Step 1: Active (Driver Assigned) */}
         <div className="relative flex items-start gap-4">

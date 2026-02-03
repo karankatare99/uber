@@ -61,10 +61,10 @@ export default function Dashboard({ user }: { user: UserProp }) {
       </div>
 
       {/* 4. Main Content Layer */}
-      <main className="flex-grow relative z-10 pt-24 px-4 pb-4 flex flex-col md:flex-row pointer-events-none">
+      <main className="grow relative z-10 pt-24 px-4 pb-4 flex flex-col md:flex-row pointer-events-none">
         
         {/* LEFT PANEL: Interactive Area */}
-        <div className="w-full md:w-[450px] flex flex-col justify-start pointer-events-auto h-[85vh] space-y-3">
+        <div className="w-full md:w-112.5 flex flex-col justify-start pointer-events-auto h-[85vh] space-y-3">
           
           {/* Back Button (Contextual) */}
           <AnimatePresence>
@@ -117,7 +117,7 @@ export default function Dashboard({ user }: { user: UserProp }) {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center justify-center min-h-[300px]"
+                className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center justify-center min-h-75"
                >
                   <LoadingSpinner size={60} color="#000000" />
                   <h3 className="text-xl font-black mt-6 tracking-tight text-black">Connecting you...</h3>
